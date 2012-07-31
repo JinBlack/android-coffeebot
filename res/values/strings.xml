@@ -4,15 +4,17 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_coffee_bot">CoffeeBot</string>
-    <string name="twitter_oauth_key">InsertCode</string>
-    <string name="twitter_oauth_secret">InsertCode</string>
+    <string name="twitter_oauth_key">InsertKey</string>
+    <string name="twitter_oauth_secret">InsertKey</string>
     <string name="title_activity_authentication">Authentication</string>
     <string name="button_send">Send</string>
     <string name="insert_pin">Insert Pin</string>
     <string name="tokenfile">token</string>
     <string name="BotAccount">NCBot</string>
     <string name="countcoffe">Coffees:</string>
-    <string name="unknowcoffe">###</string>
-    <string name="updateregexp">Your balance is (\\d+)</string>
+    <string name="unknowcoffe">#</string>
+    <string name="updateregexp">Your balance is (-?\\d+)</string>
     <string name="countCoffeToDrink">#</string>
+    <string name="valute">€</string>
+    <string name="numIcon">#N</string>
 </resources>

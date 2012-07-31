@@ -2,12 +2,9 @@ package it.jinblack.coffeebot;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.StreamCorruptedException;
-import java.text.AttributedString;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,42 +16,26 @@ import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.conf.ConfigurationBuilder;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.IntentSender;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.content.IntentSender.SendIntentException;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
-import android.content.res.Resources.Theme;
-import android.database.DatabaseErrorHandler;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.widget.GridLayout;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class CoffeeBot extends Activity implements OnSeekBarChangeListener {
+public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFocusChangeListener {
 	public static Integer TOKEN_REQUEST = 1;
+	public static Float COFFEE_PRICE = (float) 0.20;
 	Context mContext;
 	Twitter mTwitter;
 	Intent auth;
@@ -62,22 +43,27 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener {
 	SeekBar bar;
 	TextView toDrink;
 	GridLayout coffeegrid;
+	EditText money,numcoffes;
+
 	
 	private class TweetAsync extends AsyncTask<String, Integer, Boolean>{
 
 		@Override
 		protected Boolean doInBackground(String... params) {
-			System.out.println(aToken);
 			if (mTwitter == null){
 				mTwitter = getTwitter();
 			}
 			try {
-				mTwitter.updateStatus(params[0]);
+				mTwitter.updateStatus("@"+mContext.getString(R.string.BotAccount)+" "+params[0]);
 			} catch (TwitterException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return null;
+		}
+		protected void onPostExecute(Boolean a){
+			toastMsg("Done!");
+			updateBalance(null);
 		}
 
 	}
@@ -87,7 +73,6 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener {
 		@Override
 		protected String doInBackground(String... params) {
 			Pattern pattern = Pattern.compile(mContext.getString(R.string.updateregexp));
-			System.out.println(aToken);
 			if (mTwitter == null){
 				mTwitter = getTwitter();
 			}
@@ -96,7 +81,6 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener {
 				while (msg.hasNext()){
 					DirectMessage dmsg = msg.next();
 					if (dmsg.getSenderScreenName().equals(mContext.getString(R.string.BotAccount))){
-						System.out.println(dmsg.getText());
 						Matcher matcher = pattern.matcher(dmsg.getText());
 						if (matcher.find()){
 							return matcher.group(1);
@@ -112,10 +96,22 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener {
 		protected void onPostExecute(String result) {
 			TextView counter = (TextView) findViewById(R.id.coffeCount);
 			counter.setText(result);
+			toastMsg(mContext.getString(R.string.countcoffe)+result);
 		}
 
 	}
 
+	private void toastMsg(String msg){
+		TextView view =new TextView(mContext);
+		view.setTextSize(40);
+		view.setBackgroundColor(Color.BLACK);
+		view.setText(msg);
+		Toast toast =new Toast(mContext);//Toast.makeText(mContext, mContext.getString(R.string.countcoffe)+result, Toast.LENGTH_SHORT);
+		toast.setDuration(Toast.LENGTH_SHORT);
+		toast.setGravity(Gravity.CENTER, 0, 0);
+		toast.setView(view);
+		toast.show();
+	}
 	
 	
 	@Override
@@ -129,6 +125,10 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener {
 		bar.setOnSeekBarChangeListener(this);
 		coffeegrid = (GridLayout) findViewById(R.id.coffeegrid);
 		auth = new Intent(this,Authentication.class);
+		money = (EditText) findViewById(R.id.moneyInput);
+		numcoffes = (EditText) findViewById(R.id.numInput);
+		numcoffes.setOnFocusChangeListener(this);
+		money.setOnFocusChangeListener(this);
 		initAccessToken();
 	}
 
@@ -150,22 +150,14 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener {
 		return new TwitterFactory(cb.build()).getInstance(aToken);
 	}
 
-	public void tweet(View view){
-		if (aToken == null){
-			initAccessToken();
-		}
-		else{
-			new TweetAsync().execute("");
-		}
-	}
+
 	public void drinkCoffees(View view){
 		if (aToken == null){
 			initAccessToken();
 		}
 		else{
 			String numCof = toDrink.getText().toString();
-			new TweetAsync().execute("@"+mContext.getString(R.string.BotAccount)+" "+numCof+" #coffee plz!");
-			updateBalance(view);
+			new TweetAsync().execute(numCof+" #coffee plz!");
 		}
 		
 	}
@@ -201,6 +193,7 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener {
 		}
 		else{
 			new UpdateBalance().execute("");
+			
 		}
 	}
 	@Override
@@ -250,5 +243,41 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener {
 	public void onStopTrackingTouch(SeekBar seekBar) {
 		// TODO Auto-generated method stub
 		
+	}
+
+
+	public void topUp(View view){
+		if (aToken == null){
+			initAccessToken();
+		}
+		else{
+			String numCof = numcoffes.getText().toString();
+			new TweetAsync().execute("#topup "+numCof+" ;)");
+		}
+
+	}
+
+	private void updateNum(){
+		int coffees;
+		String mon = money.getText().toString();
+		if (mon.equals("") || mon.equals(" "))
+			mon = "0";
+		coffees = (int) (Float.parseFloat(mon)/COFFEE_PRICE);
+		numcoffes.setText(String.valueOf(coffees));
+	}
+	
+	private void updateMoney(){
+		float mon;
+		mon = Float.parseFloat(numcoffes.getText().toString())*COFFEE_PRICE;
+		money.setText(String.valueOf(mon));
+	}
+	
+	public void onFocusChange(View v, boolean hasFocus) {
+		if (!hasFocus){
+			if (v.getId() == R.id.moneyInput)
+				updateNum();
+			if (v.getId() == R.id.numInput)
+				updateMoney();			
+		}
 	}
 }
