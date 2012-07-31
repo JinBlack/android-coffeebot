@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.StreamCorruptedException;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +23,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.widget.GridLayout;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
@@ -36,6 +40,7 @@ import android.widget.Toast;
 public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFocusChangeListener {
 	public static Integer TOKEN_REQUEST = 1;
 	public static Float COFFEE_PRICE = (float) 0.20;
+	private static long POLLING_TIME = 5000;
 	Context mContext;
 	Twitter mTwitter;
 	Intent auth;
@@ -44,8 +49,32 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 	TextView toDrink;
 	GridLayout coffeegrid;
 	EditText money,numcoffes;
+	TimerTask updateTask;
+	final Handler handler = new Handler();
+	Timer t ;
 
-	
+	int coffeeleft;
+
+	private void updateBalacePoll(){
+		t = new Timer();
+		updateTask = new TimerTask() {
+			public void run() {
+				handler.post(new Runnable() {
+					public void run() {
+						updateBalance(null); 
+					}
+				});
+			}};
+
+
+			t.schedule(updateTask, POLLING_TIME, POLLING_TIME); 
+
+	}
+	private void stopBalacePoll(){
+		if(t!=null){
+			t.cancel();
+		}
+	}
 	private class TweetAsync extends AsyncTask<String, Integer, Boolean>{
 
 		@Override
@@ -94,9 +123,12 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 			return null;
 		}
 		protected void onPostExecute(String result) {
-			TextView counter = (TextView) findViewById(R.id.coffeCount);
-			counter.setText(result);
-			toastMsg(mContext.getString(R.string.countcoffe)+result);
+			if (result != null && Integer.valueOf(result) != coffeeleft){
+				coffeeleft = Integer.valueOf(result);
+				TextView counter = (TextView) findViewById(R.id.coffeCount);
+				counter.setText(result);
+				toastMsg(mContext.getString(R.string.countcoffe)+result);
+			}
 		}
 
 	}
@@ -106,14 +138,14 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 		view.setTextSize(40);
 		view.setBackgroundColor(Color.BLACK);
 		view.setText(msg);
-		Toast toast =new Toast(mContext);//Toast.makeText(mContext, mContext.getString(R.string.countcoffe)+result, Toast.LENGTH_SHORT);
+		Toast toast =new Toast(mContext);
 		toast.setDuration(Toast.LENGTH_SHORT);
 		toast.setGravity(Gravity.CENTER, 0, 0);
 		toast.setView(view);
 		toast.show();
 	}
-	
-	
+
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -130,19 +162,26 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 		numcoffes.setOnFocusChangeListener(this);
 		money.setOnFocusChangeListener(this);
 		initAccessToken();
+
 	}
 
 	@Override
 	public void onResume(){
 		super.onResume();
 		updateBalance(null);
+		updateBalacePoll();
+	}
+	@Override
+	public void onPause(){
+		super.onPause();
+		stopBalacePoll();
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_coffee_bot, menu);
 		return true;
 	}
-	
+
 	private Twitter getTwitter() {
 		ConfigurationBuilder cb = new ConfigurationBuilder();
 		cb.setOAuthConsumerKey(mContext.getString(R.string.twitter_oauth_key));
@@ -151,7 +190,7 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 	}
 
 
-	public void drinkCoffees(View view){
+	public void drinkCoffee(View view){
 		if (aToken == null){
 			initAccessToken();
 		}
@@ -159,7 +198,7 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 			String numCof = toDrink.getText().toString();
 			new TweetAsync().execute(numCof+" #coffee plz!");
 		}
-		
+
 	}
 
 	private void initAccessToken(){
@@ -193,7 +232,7 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 		}
 		else{
 			new UpdateBalance().execute("");
-			
+
 		}
 	}
 	@Override
@@ -225,7 +264,7 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 
 	public void onProgressChanged(SeekBar seekBar, int progress,
 			boolean fromUser) {
-		
+
 		toDrink.setText(String.valueOf(progress));
 		coffeegrid.removeAllViews();
 		for (int i=0; i< progress;i++){
@@ -237,12 +276,12 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 
 	public void onStartTrackingTouch(SeekBar seekBar) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void onStopTrackingTouch(SeekBar seekBar) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
@@ -258,20 +297,20 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 	}
 
 	private void updateNum(){
-		int coffees;
+		int coffee;
 		String mon = money.getText().toString();
 		if (mon.equals("") || mon.equals(" "))
 			mon = "0";
-		coffees = (int) (Float.parseFloat(mon)/COFFEE_PRICE);
-		numcoffes.setText(String.valueOf(coffees));
+		coffee = (int) (Float.parseFloat(mon)/COFFEE_PRICE);
+		numcoffes.setText(String.valueOf(coffee));
 	}
-	
+
 	private void updateMoney(){
 		float mon;
 		mon = Float.parseFloat(numcoffes.getText().toString())*COFFEE_PRICE;
 		money.setText(String.valueOf(mon));
 	}
-	
+
 	public void onFocusChange(View v, boolean hasFocus) {
 		if (!hasFocus){
 			if (v.getId() == R.id.moneyInput)

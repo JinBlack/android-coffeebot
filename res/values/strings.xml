@@ -11,7 +11,7 @@
     <string name="insert_pin">Insert Pin</string>
     <string name="tokenfile">token</string>
     <string name="BotAccount">NCBot</string>
-    <string name="countcoffe">Coffees:</string>
+    <string name="countcoffe">Coffee:</string>
     <string name="unknowcoffe">#</string>
     <string name="updateregexp">Your balance is (-?\\d+)</string>
     <string name="countCoffeToDrink">#</string>

@@ -130,7 +130,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:alpha="0.8"
-            android:onClick="drinkCoffees"
+            android:onClick="drinkCoffee"
             app:columnCount="5"
             app:rowCount="4" >
 
