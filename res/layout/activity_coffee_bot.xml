@@ -1,0 +1,85 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp" xmlns:app="http://schemas.android.com/apk/res/it.jinblack.coffeebot">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="updateBalance"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/coffeCountstr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/countcoffe"
+            android:textSize="40sp"
+            android:typeface="serif" />
+
+        <TextView
+            android:id="@+id/coffeCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/unknowcoffe"
+            android:textSize="40sp"
+            android:typeface="serif" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_weight="1" >
+
+        <TextView
+            android:id="@+id/countCoffeToDrink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:hint="@string/countCoffeToDrink"
+            android:textSize="160sp" />
+
+        <android.support.v7.widget.GridLayout
+            android:id="@+id/coffeegrid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:alpha="0.8"
+            android:onClick="drinkCoffees"
+            app:columnCount="5"
+            app:rowCount="5" >
+
+            <ImageView
+                android:id="@+id/imageCoffe"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/caffe100" />
+        </android.support.v7.widget.GridLayout>
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:max="25"
+            android:progress="1" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TopUp"
+            android:textSize="80sp" />
+    </LinearLayout>
+
+</LinearLayout>
