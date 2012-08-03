@@ -18,14 +18,15 @@ import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.conf.ConfigurationBuilder;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.GridLayout;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
@@ -196,7 +197,9 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 		}
 		else{
 			String numCof = toDrink.getText().toString();
-			new TweetAsync().execute(numCof+" #coffee plz!");
+			String question = String.format(mContext.getString(R.string.drink_question),numCof);
+			String tweet = String.format(mContext.getString(R.string.drink_tweet),numCof);
+			tweetWithConfirm(question,tweet);
 		}
 
 	}
@@ -291,7 +294,10 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 		}
 		else{
 			String numCof = numcoffes.getText().toString();
-			new TweetAsync().execute("#topup "+numCof+" ;)");
+			String question = String.format(mContext.getString(R.string.topup_question),numCof);
+			String tweet = String.format(mContext.getString(R.string.topup_tweet),numCof);
+			tweetWithConfirm(question,tweet);
+
 		}
 
 	}
@@ -318,5 +324,21 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 			if (v.getId() == R.id.numInput)
 				updateMoney();			
 		}
+	}
+	private void tweetWithConfirm (String question,final String tweetmsg){
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(question)
+		       .setCancelable(false)
+		       .setNegativeButton("No", new DialogInterface.OnClickListener() {
+		           public void onClick(DialogInterface dialog, int id) {
+		                dialog.cancel();
+		           }
+		       })
+		       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+		           public void onClick(DialogInterface dialog, int id) {
+		   			new TweetAsync().execute(tweetmsg);		           }
+		       });
+		AlertDialog alert = builder.create();
+		alert.show();
 	}
 }

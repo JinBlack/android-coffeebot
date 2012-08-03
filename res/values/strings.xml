@@ -11,10 +11,16 @@
     <string name="insert_pin">Insert Pin</string>
     <string name="tokenfile">token</string>
     <string name="BotAccount">NCBot</string>
-    <string name="countcoffe">Coffee:</string>
+    <string name="countcoffe">Coffees:</string>
     <string name="unknowcoffe">#</string>
     <string name="updateregexp">Your balance is (-?\\d+)</string>
     <string name="countCoffeToDrink">#</string>
     <string name="valute">€</string>
     <string name="numIcon">#N</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="topup_question">Do you want to topup %s coffees?</string>
+    <string name="drink_question">Do you want to drink %s coffees?</string>
+    <string name="topup_tweet">#topup %s ;)</string>
+    <string name="drink_tweet">%s #coffees plz!</string>
 </resources>
