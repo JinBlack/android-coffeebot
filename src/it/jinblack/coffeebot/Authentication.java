@@ -36,12 +36,14 @@ public class Authentication extends Activity {
 			}
 			try {
 				request = twitter.getOAuthRequestToken();
-				webview.loadUrl(request.getAuthorizationURL());
 			} catch (TwitterException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return null;
+		}
+		protected void onPostExecute(Boolean b){
+			webview.loadUrl(request.getAuthorizationURL());
 		}
 
 	}
@@ -70,6 +72,10 @@ public class Authentication extends Activity {
 				e.printStackTrace();
 			}
 			return null;
+		}
+		protected void onPostExecute(Boolean b){
+			setResult(RESULT_OK);
+			finish();
 		}
 
 	}
@@ -115,8 +121,6 @@ public class Authentication extends Activity {
 		String pin = pinText.getText().toString().trim();
 		if (pin != ""){
 			new SendPin().execute(pin);
-			setResult(RESULT_OK);
-			finish();
 		}
 	}
 

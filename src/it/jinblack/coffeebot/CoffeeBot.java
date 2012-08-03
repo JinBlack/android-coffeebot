@@ -162,7 +162,6 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 		numcoffes = (EditText) findViewById(R.id.numInput);
 		numcoffes.setOnFocusChangeListener(this);
 		money.setOnFocusChangeListener(this);
-		initAccessToken();
 
 	}
 
@@ -204,6 +203,9 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 
 	}
 
+	/**
+	 * Load access token or init if it doesn't exist
+	 */
 	private void initAccessToken(){
 		FileInputStream file;
 
@@ -240,14 +242,20 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 	}
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		System.out.println("Result");
 		// Check which request we're responding to
 		if (requestCode == TOKEN_REQUEST) {
 			// Make sure the request was successful
+			System.out.println("TokenOK");
+
 			if (resultCode == RESULT_OK) {
+				System.out.println("ResultOK");
+
 				try {
 					FileInputStream file = openFileInput("token");
 					ObjectInputStream objin = new ObjectInputStream(file);
 					aToken = (AccessToken) objin.readObject();
+					System.out.println("OpenOK");
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -325,16 +333,21 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 				updateMoney();			
 		}
 	}
+	/**
+	 * make a tweet asking a confermation
+	 * @param question question to ask
+	 * @param tweetmsg string to tweet
+	 */
 	private void tweetWithConfirm (String question,final String tweetmsg){
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(question)
 		       .setCancelable(false)
-		       .setNegativeButton("No", new DialogInterface.OnClickListener() {
+		       .setNegativeButton(mContext.getString(R.string.no), new DialogInterface.OnClickListener() {
 		           public void onClick(DialogInterface dialog, int id) {
 		                dialog.cancel();
 		           }
 		       })
-		       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+		       .setPositiveButton(mContext.getString(R.string.yes), new DialogInterface.OnClickListener() {
 		           public void onClick(DialogInterface dialog, int id) {
 		   			new TweetAsync().execute(tweetmsg);		           }
 		       });
