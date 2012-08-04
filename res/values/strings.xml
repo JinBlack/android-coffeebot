@@ -23,4 +23,6 @@
     <string name="drink_question">Do you want to drink %s coffees?</string>
     <string name="topup_tweet">#topup %s ;)</string>
     <string name="drink_tweet">%s #coffees plz!</string>
+    <string name="tweet_failed">Failed!</string>
+    <string name="tweet_done">Done!</string>
 </resources>

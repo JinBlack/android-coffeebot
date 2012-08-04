@@ -28,11 +28,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.GridLayout;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -77,7 +79,7 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 		}
 	}
 	private class TweetAsync extends AsyncTask<String, Integer, Boolean>{
-
+		String msg;
 		@Override
 		protected Boolean doInBackground(String... params) {
 			if (mTwitter == null){
@@ -85,14 +87,14 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 			}
 			try {
 				mTwitter.updateStatus("@"+mContext.getString(R.string.BotAccount)+" "+params[0]);
+				msg = mContext.getString(R.string.tweet_done);
 			} catch (TwitterException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				msg = mContext.getString(R.string.tweet_failed);
 			}
 			return null;
 		}
 		protected void onPostExecute(Boolean a){
-			toastMsg("Done!");
+			toastMsg(msg);
 			updateBalance(null);
 		}
 
@@ -119,7 +121,7 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 				}
 			} catch (TwitterException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 			return null;
 		}
@@ -135,14 +137,17 @@ public class CoffeeBot extends Activity implements OnSeekBarChangeListener, OnFo
 	}
 
 	private void toastMsg(String msg){
-		TextView view =new TextView(mContext);
-		view.setTextSize(40);
-		view.setBackgroundColor(Color.BLACK);
-		view.setText(msg);
+		LayoutInflater inflater = getLayoutInflater();
+		View toastRoot = inflater.inflate(R.layout.toast, null);
+
+		TextView text = (TextView) toastRoot.findViewById(R.id.msgToast);
+		text.setText(msg);
+				
+		
 		Toast toast =new Toast(mContext);
 		toast.setDuration(Toast.LENGTH_SHORT);
 		toast.setGravity(Gravity.CENTER, 0, 0);
-		toast.setView(view);
+		toast.setView(toastRoot);
 		toast.show();
 	}
 
